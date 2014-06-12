@@ -30,9 +30,14 @@ class EditorClass(object):
                 takefocus = 0,
                 bd = 0,
                 background = 'lightgrey',
-                foreground = 'magenta',
-                state='disabled'
+                foreground = 'gray',
+                state = 'disabled',
+                wrap = NONE
         )
+
+        self.lnText.bind('<Button-4>', lambda e: "break")
+        self.lnText.bind('<Button-5>', lambda e: "break")
+
         self.lnText.pack(side=LEFT, fill='y')
 
         # The Main Text Widget
@@ -56,7 +61,6 @@ class EditorClass(object):
         # assume each line is at least 6 pixels high
         step = 6
 
-        nl = '\n'
         lineMask = '    %s\n'
         indexMask = '@0,%d'
 
@@ -65,7 +69,7 @@ class EditorClass(object):
             if line == ll:
                 if col != cc:
                     col = cc
-                    ln += nl
+                    ln += '\n'
             else:
                 line, col = ll, cc
                 ln += (lineMask % line)[-5:]
@@ -94,7 +98,6 @@ class EditorClass(object):
             cls.UPDATE_PERIOD,
             cls.updateAllLineNumbers)
 
-
 def demo(noOfEditors, noOfLines):
     pane = PanedWindow(root, orient=HORIZONTAL, opaqueresize=True)
 
@@ -102,7 +105,7 @@ def demo(noOfEditors, noOfLines):
         ed = EditorClass(root)
         pane.add(ed.frame)
 
-    s = 'line ................................... %s'
+    s = 'line '+ '.'*40+ ' %s'
     s = '\n'.join( s%i for i in range(1, noOfLines+1) )
 
     for ed in EditorClass.editors:
