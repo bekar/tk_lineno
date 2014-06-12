@@ -1,69 +1,22 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 
-"""A wrapper to show line numbers for Tkinter Text widgets.
+# A wrapper to show line numbers for Tkinter Text widgets.
+# http://tkinter.unpythonic.net/wiki/A_Text_Widget_with_Line_Numbers
 
-Features:
-
- - Line numbers are displayed in a seperate Text widget.
-
- - Line number display is entirely automatic.
-
- - Text in the main Text widget can be manipulated normally,
-   without regard to line numbers.
-
- - Line numbers are displayed correctly for wrapped lines.
-
-Drawbacks:
-
- - The height of each line in the main Text widget must all
-   be the same.
-
- - The height of the lines in the line number display Text
-   widget must be the same as for the main Text widget.
-
- - There is a slight delay in line numbers catching up with reality.
-   This is most noticable when fast scrolling is taking place.
-
-"""
-
-__version__ = 0.2
-__date__    = "2009-07-25"
-__author__  = "robert@pytrash.co.uk"
-__licence__ = "Public Domain"
-
-
-__changelog__ = (
-
-('2009-07-25', '0.2', 'PyTrash',
-
-"""Fixed bugs, improved efficiency, added PanedWindow to demo."""),
-
-('2009-07-24', '0.1', 'PyTrash',
-
-"""Initial version."""),
-
-)
-
-
-from Tkinter import *
-
-root = Tk()
+from tkinter import *
 
 class EditorClass(object):
-
-    UPDATE_PERIOD = 100 #ms
+    UPDATE_PERIOD = 100 # mill seconds
 
     editors = []
     updateId = None
 
     def __init__(self, master):
-
         self.__class__.editors.append(self)
-
         self.lineNumbers = ''
 
         # A frame to hold the three components of the widget.
-        self.frame = Frame(master, bd=2, relief=SUNKEN)
+        self.frame = Frame(master)#, bd=0, relief=SUNKEN)
 
         # The widgets vertical scrollbar
         self.vScrollbar = Scrollbar(self.frame, orient=VERTICAL)
@@ -84,11 +37,8 @@ class EditorClass(object):
 
         # The Main Text Widget
         self.text = Text(self.frame,
-                width=16,
                 bd=0,
                 padx = 4,
-                undo=True,
-                background = 'white'
         )
         self.text.pack(side=LEFT, fill=BOTH, expand=1)
 
@@ -99,11 +49,9 @@ class EditorClass(object):
             self.updateAllLineNumbers()
 
     def getLineNumbers(self):
-
         x = 0
         line = '0'
-        col= ''
-        ln = ''
+        col = ln = ''
 
         # assume each line is at least 6 pixels high
         step = 6
@@ -113,9 +61,7 @@ class EditorClass(object):
         indexMask = '@0,%d'
 
         for i in range(0, self.text.winfo_height(), step):
-
-            ll, cc = self.text.index( indexMask % i).split('.')
-
+            ll, cc = self.text.index(indexMask % i).split('.')
             if line == ll:
                 if col != cc:
                     col = cc
@@ -123,11 +69,9 @@ class EditorClass(object):
             else:
                 line, col = ll, cc
                 ln += (lineMask % line)[-5:]
-
         return ln
 
     def updateLineNumbers(self):
-
         tt = self.lnText
         ln = self.getLineNumbers()
         if self.lineNumbers != ln:
@@ -139,7 +83,6 @@ class EditorClass(object):
 
     @classmethod
     def updateAllLineNumbers(cls):
-
         if len(cls.editors) < 1:
             cls.updateId = None
             return
@@ -153,7 +96,6 @@ class EditorClass(object):
 
 
 def demo(noOfEditors, noOfLines):
-
     pane = PanedWindow(root, orient=HORIZONTAL, opaqueresize=True)
 
     for e in range(noOfEditors):
@@ -161,7 +103,7 @@ def demo(noOfEditors, noOfLines):
         pane.add(ed.frame)
 
     s = 'line ................................... %s'
-    s = '\n'.join( s%i for i in xrange(1, noOfLines+1) )
+    s = '\n'.join( s%i for i in range(1, noOfLines+1) )
 
     for ed in EditorClass.editors:
         ed.text.insert(END, s)
@@ -172,6 +114,7 @@ def demo(noOfEditors, noOfLines):
 
 
 if __name__ == '__main__':
-
-    demo(3, 9999)
+    root = Tk()
+    demo(1, 9999)
+    root.bind('<Key-Escape>', lambda event: quit())
     mainloop()
