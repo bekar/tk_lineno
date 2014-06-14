@@ -5,25 +5,22 @@
 
 from tkinter import *
 
-class EditorClass(object):
+class LineNumbedText(Frame):
     UPDATE_PERIOD = 100 # mill seconds
-
     editors = []
     updateId = None
 
-    def __init__(self, master):
+    def __init__(self, parent=None):
+        Frame.__init__(self, parent)
         self.__class__.editors.append(self)
         self.lineNumbers = ''
 
-        # A frame to hold the three components of the widget.
-        self.frame = Frame(master)#, bd=0, relief=SUNKEN)
-
         # The widgets vertical scrollbar
-        self.vScrollbar = Scrollbar(self.frame, orient=VERTICAL)
+        self.vScrollbar = Scrollbar(self, orient=VERTICAL)
         self.vScrollbar.pack(fill='y', side=RIGHT)
 
         # The Text widget holding the line numbers.
-        self.lnText = Text(self.frame,
+        self.lnText = Text(self,
                 width = 4,
                 padx = 4,
                 highlightthickness = 0,
@@ -41,9 +38,10 @@ class EditorClass(object):
         self.lnText.pack(side=LEFT, fill='y')
 
         # The Main Text Widget
-        self.text = Text(self.frame,
-                bd=0,
+        self.text = Text(self,
+                bd = 0,
                 padx = 4,
+                highlightthickness = 0
         )
         self.text.pack(side=LEFT, fill=BOTH, expand=1)
 
@@ -57,7 +55,7 @@ class EditorClass(object):
         x = 0
         line = '0'
         col = ln = ''
-
+        self.lnText.config(font = self.text['font'])
         # assume each line is at least 6 pixels high
         step = 6
 
@@ -98,26 +96,18 @@ class EditorClass(object):
             cls.UPDATE_PERIOD,
             cls.updateAllLineNumbers)
 
-def demo(noOfEditors, noOfLines):
-    pane = PanedWindow(root, orient=HORIZONTAL, opaqueresize=True)
-
-    for e in range(noOfEditors):
-        ed = EditorClass(root)
-        pane.add(ed.frame)
+def demo(noOfLines):
+    root.title("Example - Line Numbers For Text Widgets")
+    ed = LineNumbedText(root)
 
     s = 'line '+ '.'*40+ ' %s'
     s = '\n'.join( s%i for i in range(1, noOfLines+1) )
 
-    for ed in EditorClass.editors:
-        ed.text.insert(END, s)
-
-    pane.pack(fill='both', expand=1)
-
-    root.title("Example - Line Numbers For Text Widgets")
-
+    ed.text.insert(END, s)
+    ed.pack(fill='both', expand=1)
 
 if __name__ == '__main__':
     root = Tk()
-    demo(1, 9999)
+    demo(9999)
     root.bind('<Key-Escape>', lambda event: quit())
     mainloop()
