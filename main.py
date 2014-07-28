@@ -5,20 +5,19 @@
 # http://tkinter.unpythonic.net/wiki/A_Text_Widget_with_Line_Numbers
 # https://github.com/bekar/tk_zoomText
 
-import tkinter as tk
+from tkinter import *
+from tkinter.ttk import *
 import tkinter.font as tkFont
 
-class LineNumbedText(tk.Text):
+class LineNumbedText(Text):
     '''Text widget with the frame container in grid layout'''
     UPDATE_PERIOD = 100 # mill seconds
-    editors = []
-    updateId = None
 
     def __init__(self, parent=None, **opts):
-        self.container = tk.Frame(parent)
+        self.container = Frame(parent)
 
         # self text widget
-        tk.Text.__init__(self, self.container, **opts)
+        Text.__init__(self, self.container, **opts)
         self.config(bd = 0, padx = 4, highlightthickness = 0)
 
         self.grid(row=0, column=1, sticky="nsew")
@@ -26,31 +25,29 @@ class LineNumbedText(tk.Text):
         self.container.grid_rowconfigure(0, weight=1)
         self.container.grid_columnconfigure(1, weight=1)
 
-        self.__class__.editors.append(self)
         self.lineNumbers = ''
 
         # The widgets vertical scrollbar
-        self.vScrollbar = tk.Scrollbar(self.container, orient="vertical")
+        self.vScrollbar = Scrollbar(self.container, orient="vertical")
         self.vScrollbar.grid(row=0, column=2, sticky="nsew")
         self.config(yscrollcommand=self.vScrollbar.set)
         self.vScrollbar.config(command=self.yview)
 
         # The Text widget holding the line numbers.
-        self.lnText = tk.Text(self.container,
+        self.lnText = Text(self.container,
                 width = 4,
                 padx = 4,
                 highlightthickness = 0,
                 takefocus = 0,
                 bd = 0,
-                background = 'lightgrey',
+                background = '#eae8e3',
                 foreground = 'gray',
                 state = 'disabled',
                 wrap = 'none'
         )
         self.lnText.grid(row=0, column=0, sticky="nsew")
 
-        if self.__class__.updateId is None:
-            self.updateAllLineNumbers()
+        self.updateLineNumbers()
 
         self.bind_keys()
 
@@ -122,18 +119,8 @@ class LineNumbedText(tk.Text):
             tt.insert('1.0', self.lineNumbers)
             tt.config(state='disabled')
 
-    @classmethod
-    def updateAllLineNumbers(cls):
-        if len(cls.editors) < 1:
-            cls.updateId = None
-            return
-
-        for ed in cls.editors:
-            ed.updateLineNumbers()
-
-        cls.updateId = ed.after(
-            cls.UPDATE_PERIOD,
-            cls.updateAllLineNumbers)
+        self.after(self.__class__.UPDATE_PERIOD,
+                 self.updateLineNumbers)
 
 def demo(noOfLines):
     root.title("Example - Line Numbers For Text Widgets")
@@ -143,11 +130,10 @@ def demo(noOfLines):
     s = '\n'.join( s%i for i in range(1, noOfLines+1) )
 
     ed.insert('end', s)
-    # ed.pack(fill='both', expand=1)
     ed.pack(fill='both', expand=1)
 
 if __name__ == '__main__':
-    root = tk.Tk()
+    root = Tk()
     demo(9999)
     root.bind('<Key-Escape>', lambda event: root.quit())
     root.mainloop()
